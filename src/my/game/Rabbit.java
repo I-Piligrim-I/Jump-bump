@@ -51,7 +51,7 @@ public class Rabbit extends Hitable implements Drawable {
     boolean direction = true;
     boolean disabledFlag = false;
 
-    int Blocked_Y;
+//    int Blocked_Y;
 
     Rabbit(int _left, int _up, int _right, int X, String RunImage, String JumpImage, String A_Name) throws IOException {
         Left_Key = _left;
@@ -145,8 +145,9 @@ public class Rabbit extends Hitable implements Drawable {
                             }
                         }
                     }
-                    if (hitable.getClass() == Wall.class)
-                        Blocked_Y = (int) hitable.y;
+                    //TODO rework on Blocked_Y, wall detection.
+//                    if (hitable.getClass() == Wall.class)
+//                        Blocked_Y = (int) hitable.y;
 
                 }
                 if (((Hitable.hitableObjects.get(i).hitTest(x, y, RABBIT_SIZE) == 2) && (vx <= 0))) {
@@ -163,7 +164,7 @@ public class Rabbit extends Hitable implements Drawable {
 
         if ((isBlockingDown == true)) {
             vy = 0;
-            y = Blocked_Y - RABBIT_SIZE;
+           // y = Blocked_Y - RABBIT_SIZE;
         } else {
             if (isBlockedFormAbove == true) {
                 vy = -vy;

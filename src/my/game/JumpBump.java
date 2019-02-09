@@ -25,7 +25,7 @@ import javax.swing.*;
 
 public class JumpBump extends Hitable {
 	public static final int WINDOW_WIDTH = 1280;
-	public static final int WINDOW_HEIGHT = 916;
+	public static final int WINDOW_HEIGHT = 600;
 	public static final int MAIN_TIMER_DELAY = 15;
 	public static final int MAIN_TIMER_INITIAL_DELAY = 0;
 	static Level l;
