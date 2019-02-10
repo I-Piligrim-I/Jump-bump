@@ -17,10 +17,10 @@ public class Score implements Drawable {
 	public void draw(Graphics2D g2d) {
 		int j = 40;
 		int i = 1;
-		for (Rabbit r : JumpBump.l.Object_Array_Rabbit) {
+		for (NamedRabbit r : JumpBump.l.Object_Array_Rabbit) {
 			g2d.setColor(SCORE_COLOR);
 			g2d.setFont(new Font("PaladinPCRus Medium", 1, SCORE_FONT_SIZE));
-			g2d.drawString("rabbit" +" " + r.name +" - "+ Integer.toString(r.score), JumpBump.Width /2, j);
+			g2d.drawString("rabbit" +" " + r.getName() +" - "+ Integer.toString(r.score), JumpBump.Width /2, j);
 			i = i + 1;
 			j = j + 30;
 		}

@@ -1,7 +1,4 @@
 package my.game;
-//Lundina Darya
-//18.05.18 (���� �������)
-//Jump&Bump
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -25,7 +22,6 @@ public class Rabbit extends Hitable implements Drawable {
     int Right_Key;
     int Up_Key;
     int score;
-    String name;
     static final int RABBIT_SIZE = 70;
 
     BufferedImage imageDead;
@@ -51,7 +47,7 @@ public class Rabbit extends Hitable implements Drawable {
 
 //    int Blocked_Y;
 
-    Rabbit(int _left, int _up, int _right, int X, String RunImage, String JumpImage, String rabbitName) throws IOException {
+    public Rabbit(int _left, int _up, int _right, int X, String RunImage, String JumpImage) throws IOException {
         Left_Key = _left;
         Up_Key = _up;
         Right_Key = _right;
@@ -68,8 +64,6 @@ public class Rabbit extends Hitable implements Drawable {
         // Flip the image horizontally
 
         imageDead = ImageIO.read(new File("dead-easter-bunny.png"));
-
-        name = rabbitName;
 
     }
 
@@ -208,9 +202,6 @@ public class Rabbit extends Hitable implements Drawable {
             }
         }
 
-        Font font = new Font("PaladinPCRus Medium", Font.BOLD, 15);
-        g2d.setFont(font);
-        g2d.setColor(new Color(212, 25, 69));
-        g2d.drawString(name, (int) x, (int) (y + RABBIT_SIZE));
+
     }
 }

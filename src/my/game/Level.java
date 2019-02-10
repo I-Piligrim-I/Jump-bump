@@ -15,8 +15,8 @@ public class Level {
 	 * create ArrayLists
 	 */
 	
-	static ArrayList<Wall> Object_Array_Wall = new ArrayList<Wall>();
-	static ArrayList<Rabbit> Object_Array_Rabbit = new ArrayList<Rabbit>();
+	static ArrayList<Wall> Object_Array_Wall = new ArrayList<>();
+	static ArrayList<NamedRabbit> Object_Array_Rabbit = new ArrayList<>();
 
 	public Level(String filename) throws IOException {
 		
@@ -33,7 +33,7 @@ public class Level {
 		Scanner scan = new Scanner(new File("rabbitTest.txt"));
 		int NumberOfRabbits = scan.nextInt();
 		for (int i = 0; i < NumberOfRabbits; i++) {
-			Object_Array_Rabbit.add(new Rabbit(
+			Object_Array_Rabbit.add(new NamedRabbit(
 					scan.nextInt(),
 					scan.nextInt(),  
 					scan.nextInt(),
