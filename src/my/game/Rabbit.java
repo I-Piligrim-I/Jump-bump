@@ -1,6 +1,8 @@
 package my.game;
 
-import java.awt.Graphics2D;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,7 @@ public class Rabbit extends Hitable implements Drawable {
     public static final int DEATH_TIMEOUT = 3000;
     public static final double VERTICAL_SEED_CONSTANT = 5;
     public static final double JUMP_SPEED_CONSTANT = -7.69;
+    private final AffineTransformOp upFilter;
 
     protected double vx;
     protected double Previous_Vetical_Speed;
@@ -51,6 +54,7 @@ public class Rabbit extends Hitable implements Drawable {
 
     boolean directionToTheRight = true;
     boolean disabledFlag = false;
+    private final AffineTransformOp downFilter;
 
 //    int Blocked_Y;
 
@@ -71,8 +75,18 @@ public class Rabbit extends Hitable implements Drawable {
 
         imageDead = ImageIO.read(new File("dead-easter-bunny.png"));
 
-    }
 
+// Rotation information
+
+        double rotationRequired = Math.toRadians(15);
+        double locationX = running.getIconWidth() / 2;
+        double locationY = running.getIconHeight() / 2;
+        AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+        downFilter = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+
+        AffineTransform tx2 = AffineTransform.getRotateInstance(Math.toRadians(-15), locationX, locationY);
+        upFilter = new AffineTransformOp(tx2, AffineTransformOp.TYPE_BILINEAR);
+    }
 
 
     public void addScoreListener(Consumer<Integer> listener) {
@@ -146,13 +160,16 @@ public class Rabbit extends Hitable implements Drawable {
                             if (hitable instanceof Rabbit) {
                                 final int deadRabbitIdx = i;
                                 Timer deathDelayTimerSoSad = new Timer(DEATH_TIMEOUT, e -> {
-                                    vx = 0;
-                                    hitable.disable(false);
-                                    spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
-                                    Hitable.hitables.get(deadRabbitIdx).x = spawnPoint;
-                                    //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
-                                    Hitable.hitables.get(deadRabbitIdx).y = 0;
-
+                                    if (hitable.isDisabled()) {
+                                        vx = 0;
+                                        hitable.disable(false);
+                                        spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
+                                        if (Hitable.hitables.size() > 0) {
+                                            Hitable.hitables.get(deadRabbitIdx).x = spawnPoint;
+                                            //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
+                                            Hitable.hitables.get(deadRabbitIdx).y = 0;
+                                        }
+                                    }
                                 });
                                 deathDelayTimerSoSad.setRepeats(false);
                                 deathDelayTimerSoSad.start();
@@ -166,14 +183,17 @@ public class Rabbit extends Hitable implements Drawable {
 //                        Blocked_Y = (int) hitable.y;
 
                 }
-                if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 2) && (vx <= 0))) {
-                    isBlockedFromRight = true;
-                }
-                if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 3) && (vy <= 0))) {
-                    isBlockedFormAbove = true;
-                }
-                if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 4) && (vx >= 0))) {
-                    isBlockedFromLeft = true;
+//                if (Hitable.hitables.size() > 0)
+                {
+                    if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 2) && (vx <= 0))) {
+                        isBlockedFromRight = true;
+                    }
+                    if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 3) && (vy <= 0))) {
+                        isBlockedFormAbove = true;
+                    }
+                    if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 4) && (vx >= 0))) {
+                        isBlockedFromLeft = true;
+                    }
                 }
             }
         }
@@ -202,15 +222,31 @@ public class Rabbit extends Hitable implements Drawable {
         return disabledFlag;
     }
 
+
+    public static BufferedImage convertToBufferedImage(Image image) {
+        BufferedImage newImage = new BufferedImage(
+                image.getWidth(null), image.getHeight(null),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return newImage;
+    }
+
+
     public void draw(Graphics2D g2d) {
+        // Drawing the rotated image at the required drawing locations
+        // g2d.drawImage(op.filter(image, null), drawLocationX, drawLocationY, null);
+
         if (isBlockingDown) {
             if (disabledFlag) {
                 g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
             } else {
+                Image image = running.getImage();
                 if (!directionToTheRight) {
-                    g2d.drawImage(running.getImage(), (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
+                    g2d.drawImage(image, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
                 } else {
-                    g2d.drawImage(running.getImage(), (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
+                    g2d.drawImage(image, (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
                 }
             }
         } else {
@@ -218,10 +254,12 @@ public class Rabbit extends Hitable implements Drawable {
                 g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
             } else {
                 boolean revFlag = false;
+                BufferedImage image = convertToBufferedImage(jumping.getImage());
+                image = (vy > 0) ? downFilter.filter(image, null) : upFilter.filter(image, null);
                 if (!directionToTheRight) {
-                    g2d.drawImage(jumping.getImage(), (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
+                    g2d.drawImage(image, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
                 } else {
-                    g2d.drawImage(jumping.getImage(), (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
+                    g2d.drawImage(image, (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
                 }
             }
         }
