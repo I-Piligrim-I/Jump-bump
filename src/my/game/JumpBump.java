@@ -71,23 +71,23 @@ public class JumpBump extends Hitable {
 
 				@Override
 				public void keyReleased(KeyEvent arg0) {
-					for (int i = 0; i < Level.Object_Array_Rabbit.size(); i++) {
-						Level.Object_Array_Rabbit.get(i).keyreleased(arg0.getKeyCode());
+					for (int i = 0; i < Level.rabbits.size(); i++) {
+						Level.rabbits.get(i).keyreleased(arg0.getKeyCode());
 					}
 
 				}
 
 				@Override
 				public void keyPressed(KeyEvent arg0) {
-					for (int i = 0; i < Level.Object_Array_Rabbit.size(); i++) {
-						Level.Object_Array_Rabbit.get(i).keypressed(arg0.getKeyCode());
+					for (int i = 0; i < Level.rabbits.size(); i++) {
+						Level.rabbits.get(i).keypressed(arg0.getKeyCode());
 					}
 
 				}
 			});
 			Timer Main_Timer = new Timer(MAIN_TIMER_DELAY, arg0 -> {
-				for (int i = 0; i < Level.Object_Array_Rabbit.size(); i++) {
-					Level.Object_Array_Rabbit.get(i).update();
+				for (int i = 0; i < Level.rabbits.size(); i++) {
+					Level.rabbits.get(i).update();
 				}
 				window.repaint();
 			});

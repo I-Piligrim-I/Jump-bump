@@ -10,18 +10,22 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Rabbit extends Hitable implements Drawable {
-    public static final int DeathTime = 3000;
+    public static final int DEATH_TIMEOUT = 3000;
+    public static final double VERTICAL_SEED_CONSTANT = 5;
+    public static final double JUMP_SPEED_CONSTANT = -7.69;
+
+
+
     double vx;
     double Previous_Vetical_Speed;
 
     double vy;
-    static final double VERTICAL_SEED_CONSTANT = 5;
-    static final double JUMP_SPEED_CONSTANT = -7.69;
+
     double VERTICAL_SPEED_CHANGE = 0.14;
     int Left_Key;
     int Right_Key;
     int Up_Key;
-    int score;
+    public int score;
     static final int RABBIT_SIZE = 70;
 
     BufferedImage imageDead;
@@ -120,9 +124,9 @@ public class Rabbit extends Hitable implements Drawable {
                         {
                             hitable.disable(true);
 
-                            if (hitable.getClass() == Rabbit.class) {
+                            if (hitable instanceof Rabbit) {
                                 final int deadRabbitIdx = i;
-                                Timer deathDelayTimerSoSad = new Timer(DeathTime, e -> {
+                                Timer deathDelayTimerSoSad = new Timer(DEATH_TIMEOUT, e -> {
                                     vx = 0;
                                     hitable.disable(false);
                                     spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
