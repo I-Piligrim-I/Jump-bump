@@ -26,11 +26,9 @@ public class JumpBump extends Hitable {
 	
 
 
-	static class Main_Game_Pannel extends JPanel {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
+	static class MainGamePanel extends JPanel {
+
+
 
 		@Override
 		protected void paintComponent(Graphics arg0) {
@@ -38,8 +36,8 @@ public class JumpBump extends Hitable {
 			Graphics2D g2d = (Graphics2D) arg0;
 			Width = getWidth();
 			Height = getHeight();
-			for (int i = 0; i < Drawable.drawable.size(); i++) {
-				Drawable.drawable.get(i).draw(g2d);
+			for (int i = 0; i < Drawable.drawables.size(); i++) {
+				Drawable.drawables.get(i).draw(g2d);
 			}
 
 		}
@@ -47,15 +45,11 @@ public class JumpBump extends Hitable {
 
 	public static void main(String[] args) throws IOException {
 
-
 		Properties props = new Properties();
 		props.load(new FileReader("game.properties"));
 
 		List<Level> levels = SettingsLoader.loadLevels(props);
 		List<NamedRabbit> namedRabbits = SettingsLoader.loadRabbits(props);
-
-		final Game game = new Game(levels, namedRabbits);
-
 
 		SwingUtilities.invokeLater(() -> {
 			JFrame frame = new JFrame("Jump~n~Bump");
@@ -63,13 +57,19 @@ public class JumpBump extends Hitable {
 			frame.setResizable(false);
 
 			frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-			JPanel main_Game = new Main_Game_Pannel();
-			frame.add(main_Game);
-			main_Game.setFocusable(true);
-//			window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+			JPanel mainGamePanel = new MainGamePanel();
+			frame.add(mainGamePanel);
+			mainGamePanel.setFocusable(true);
 			frame.setVisible(true);
 
-			main_Game.addKeyListener(new KeyListener() {
+			Game game = new Game(levels, namedRabbits, s -> {
+				Drawable.drawables.clear();
+				Hitable.hitables.clear();
+				Drawable.drawables.add(new GameOverScreen(s));
+			});
+
+			mainGamePanel.addKeyListener(new KeyListener() {
 
 				@Override
 				public void keyTyped(KeyEvent arg0) {
@@ -97,13 +97,11 @@ public class JumpBump extends Hitable {
 				}
 				frame.repaint();
 			});
+
+
 			Main_Timer.setInitialDelay(MAIN_TIMER_INITIAL_DELAY);
 			Main_Timer.start();
 		});
-
-
-
-
 
 	}
 

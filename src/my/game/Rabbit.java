@@ -1,10 +1,13 @@
 package my.game;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -24,6 +27,8 @@ public class Rabbit extends Hitable implements Drawable {
     protected int Right_Key;
     protected int Up_Key;
     public int score;
+
+    private List<Consumer<Integer>> scoreListeners = new ArrayList<>();
     static final int RABBIT_SIZE = 70;
 
     private BufferedImage imageDead;
@@ -56,8 +61,7 @@ public class Rabbit extends Hitable implements Drawable {
         width = RABBIT_SIZE;
         height = RABBIT_SIZE;
         x = X;
-        Drawable.drawable.add(this);
-        Hitable.hitableObjects.add(this);
+
 
         //Trying to do gif.
         jumping = new ImageIcon(jumpImage, "");
@@ -67,6 +71,12 @@ public class Rabbit extends Hitable implements Drawable {
 
         imageDead = ImageIO.read(new File("dead-easter-bunny.png"));
 
+    }
+
+
+
+    public void addScoreListener(Consumer<Integer> listener) {
+        this.scoreListeners.add(listener);
     }
 
     void keyreleased(int key) {
@@ -102,6 +112,17 @@ public class Rabbit extends Hitable implements Drawable {
 
     }
 
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+        for (Consumer<Integer> scoreListener : scoreListeners) {
+            scoreListener.accept(this.score);
+        }
+    }
+
     @Override
     public void disable(boolean d) {
         disabledFlag = d;
@@ -112,12 +133,12 @@ public class Rabbit extends Hitable implements Drawable {
         isBlockingDown = false;
         isBlockedFromRight = false;
         isBlockedFromLeft = false;
-        for (int i = 0; i < Hitable.hitableObjects.size(); i++) {
-            if (Hitable.hitableObjects.get(i) != this) {
-                if (((Hitable.hitableObjects.get(i).hitTest(x, y, RABBIT_SIZE) == 1) && (vy >= 0))) {
+        for (int i = 0; i < Hitable.hitables.size(); i++) {
+            if (Hitable.hitables.get(i) != this) {
+                if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 1) && (vy >= 0))) {
                     isBlockingDown = true;
                     // rabbit dies
-                    Hitable hitable = Hitable.hitableObjects.get(i);
+                    Hitable hitable = Hitable.hitables.get(i);
                     if (!hitable.isDisabled()) {
                         {
                             hitable.disable(true);
@@ -128,14 +149,15 @@ public class Rabbit extends Hitable implements Drawable {
                                     vx = 0;
                                     hitable.disable(false);
                                     spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
-                                    Hitable.hitableObjects.get(deadRabbitIdx).x = spawnPoint;
+                                    Hitable.hitables.get(deadRabbitIdx).x = spawnPoint;
                                     //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
-                                    Hitable.hitableObjects.get(deadRabbitIdx).y = 0;
+                                    Hitable.hitables.get(deadRabbitIdx).y = 0;
 
                                 });
                                 deathDelayTimerSoSad.setRepeats(false);
                                 deathDelayTimerSoSad.start();
-                                score = score + 1;
+
+                                setScore(score + 1);
                             }
                         }
                     }
@@ -144,13 +166,13 @@ public class Rabbit extends Hitable implements Drawable {
 //                        Blocked_Y = (int) hitable.y;
 
                 }
-                if (((Hitable.hitableObjects.get(i).hitTest(x, y, RABBIT_SIZE) == 2) && (vx <= 0))) {
+                if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 2) && (vx <= 0))) {
                     isBlockedFromRight = true;
                 }
-                if (((Hitable.hitableObjects.get(i).hitTest(x, y, RABBIT_SIZE) == 3) && (vy <= 0))) {
+                if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 3) && (vy <= 0))) {
                     isBlockedFormAbove = true;
                 }
-                if (((Hitable.hitableObjects.get(i).hitTest(x, y, RABBIT_SIZE) == 4) && (vx >= 0))) {
+                if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 4) && (vx >= 0))) {
                     isBlockedFromLeft = true;
                 }
             }

@@ -9,5 +9,5 @@ import java.util.List;
 public interface Drawable {
 	void draw(Graphics2D g);
 
-	List<Drawable> drawable = new ArrayList<>();
+	List<Drawable> drawables = new ArrayList<>();
 }
