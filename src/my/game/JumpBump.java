@@ -4,12 +4,14 @@ package my.game;
 //import javafx.scene.media.AudioClip;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
+import java.io.FileReader;
 import java.io.IOException;
-
+import java.util.List;
+import java.util.Properties;
 
 
 public class JumpBump extends Hitable {
@@ -17,8 +19,6 @@ public class JumpBump extends Hitable {
 	public static final int WINDOW_HEIGHT = 600;
 	public static final int MAIN_TIMER_DELAY = 15;
 	public static final int MAIN_TIMER_INITIAL_DELAY = 0;
-	static Level l;
-	static BufferedImage Rabbit;
 	static int Width;
 	static int Height;
 
@@ -38,8 +38,6 @@ public class JumpBump extends Hitable {
 			Graphics2D g2d = (Graphics2D) arg0;
 			Width = getWidth();
 			Height = getHeight();
-			int XX;
-			int YY;
 			for (int i = 0; i < Drawable.drawable.size(); i++) {
 				Drawable.drawable.get(i).draw(g2d);
 			}
@@ -48,19 +46,28 @@ public class JumpBump extends Hitable {
 	}
 
 	public static void main(String[] args) throws IOException {
-		l = new Level("levelText.txt");
+
+
+		Properties props = new Properties();
+		props.load(new FileReader("game.properties"));
+
+		List<Level> levels = SettingsLoader.loadLevels(props);
+		List<NamedRabbit> namedRabbits = SettingsLoader.loadRabbits(props);
+
+		final Game game = new Game(levels, namedRabbits);
+
 
 		SwingUtilities.invokeLater(() -> {
-			JFrame window = new JFrame("Jump~n~Bump");
-			window.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-			window.setResizable(false);
+			JFrame frame = new JFrame("Jump~n~Bump");
+			frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+			frame.setResizable(false);
 
-			window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+			frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 			JPanel main_Game = new Main_Game_Pannel();
-			window.add(main_Game);
+			frame.add(main_Game);
 			main_Game.setFocusable(true);
 //			window.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			window.setVisible(true);
+			frame.setVisible(true);
 
 			main_Game.addKeyListener(new KeyListener() {
 
@@ -71,25 +78,24 @@ public class JumpBump extends Hitable {
 
 				@Override
 				public void keyReleased(KeyEvent arg0) {
-					for (int i = 0; i < Level.rabbits.size(); i++) {
-						Level.rabbits.get(i).keyreleased(arg0.getKeyCode());
+					for (NamedRabbit namedRabbit : game.getRabbits()) {
+						namedRabbit.keyreleased(arg0.getKeyCode());
 					}
-
 				}
 
 				@Override
 				public void keyPressed(KeyEvent arg0) {
-					for (int i = 0; i < Level.rabbits.size(); i++) {
-						Level.rabbits.get(i).keypressed(arg0.getKeyCode());
+					for (NamedRabbit namedRabbit : game.getRabbits()) {
+						namedRabbit.keypressed(arg0.getKeyCode());
 					}
 
 				}
 			});
 			Timer Main_Timer = new Timer(MAIN_TIMER_DELAY, arg0 -> {
-				for (int i = 0; i < Level.rabbits.size(); i++) {
-					Level.rabbits.get(i).update();
+				for (NamedRabbit namedRabbit : game.getRabbits()) {
+					namedRabbit.update();
 				}
-				window.repaint();
+				frame.repaint();
 			});
 			Main_Timer.setInitialDelay(MAIN_TIMER_INITIAL_DELAY);
 			Main_Timer.start();

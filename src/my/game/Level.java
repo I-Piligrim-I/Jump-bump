@@ -1,43 +1,30 @@
 package my.game;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 
 public class Level {
 
-    static List<Wall> walls = new ArrayList<>();
-    static List<NamedRabbit> rabbits = new ArrayList<>();
+    private int maxScore;
+    private BackGround backGround;
+    private List<Wall> walls;
 
-    public Level(String filename) throws IOException {
 
-        try (Scanner sc = new Scanner(new File("levelText.txt"))) {
-            BackGround background = new BackGround(sc.next());
-            int WallAmmount = sc.nextInt();
-
-            for (int i = 0; i < WallAmmount; i++) {
-                walls.add(new Wall(sc.nextInt(), sc.nextInt(), sc.nextInt(), sc.nextInt(), sc.next()));
-            }
-        }
-        Score score = new Score();
-        try (Scanner scan = new Scanner(new File("rabbitTest.txt"))) {
-            int NumberOfRabbits = scan.nextInt();
-            for (int i = 0; i < NumberOfRabbits; i++) {
-                rabbits.add(new NamedRabbit(
-                        scan.nextInt(),
-                        scan.nextInt(),
-                        scan.nextInt(),
-                        scan.nextInt(),
-                        scan.next(),
-                        scan.next(),
-                        scan.next())
-                );
-
-            }
-        }
+    public Level(int maxScore, BackGround backGround, List<Wall> walls) {
+        this.maxScore = maxScore;
+        this.backGround = backGround;
+        this.walls = walls;
     }
 
+    public int getMaxScore() {
+        return maxScore;
+    }
+
+    public BackGround getBackGround() {
+        return backGround;
+    }
+
+    public List<Wall> getWalls() {
+        return walls;
+    }
 }

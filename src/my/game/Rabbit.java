@@ -14,23 +14,21 @@ public class Rabbit extends Hitable implements Drawable {
     public static final double VERTICAL_SEED_CONSTANT = 5;
     public static final double JUMP_SPEED_CONSTANT = -7.69;
 
+    protected double vx;
+    protected double Previous_Vetical_Speed;
 
-
-    double vx;
-    double Previous_Vetical_Speed;
-
-    double vy;
+    protected double vy;
 
     double VERTICAL_SPEED_CHANGE = 0.14;
-    int Left_Key;
-    int Right_Key;
-    int Up_Key;
+    protected int Left_Key;
+    protected int Right_Key;
+    protected int Up_Key;
     public int score;
     static final int RABBIT_SIZE = 70;
 
-    BufferedImage imageDead;
-    BufferedImage jump;
-    BufferedImage jumpInv;
+    private BufferedImage imageDead;
+    private BufferedImage jump;
+    private BufferedImage jumpInv;
 
     public static ImageIcon jumping;
     public static ImageIcon running;
@@ -51,7 +49,7 @@ public class Rabbit extends Hitable implements Drawable {
 
 //    int Blocked_Y;
 
-    public Rabbit(int _left, int _up, int _right, int X, String RunImage, String JumpImage) throws IOException {
+    public Rabbit(int _left, int _up, int _right, int X, String runImage, String jumpImage) throws IOException {
         Left_Key = _left;
         Up_Key = _up;
         Right_Key = _right;
@@ -62,8 +60,8 @@ public class Rabbit extends Hitable implements Drawable {
         Hitable.hitableObjects.add(this);
 
         //Trying to do gif.
-        jumping = new ImageIcon(JumpImage, "");
-        running = new ImageIcon(RunImage, "");
+        jumping = new ImageIcon(jumpImage, "");
+        running = new ImageIcon(runImage, "");
 
         // Flip the image horizontally
 
@@ -187,7 +185,7 @@ public class Rabbit extends Hitable implements Drawable {
             if (disabledFlag) {
                 g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
             } else {
-                if (!directionToTheRight) { //(vx > 0 || (vx == 0 && Previous_Vetical_Speed > 0 || directionToTheRight == false)) {
+                if (!directionToTheRight) {
                     g2d.drawImage(running.getImage(), (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
                 } else {
                     g2d.drawImage(running.getImage(), (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
@@ -198,7 +196,7 @@ public class Rabbit extends Hitable implements Drawable {
                 g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
             } else {
                 boolean revFlag = false;
-                if (!directionToTheRight) { //(vx > 0 || (vx == 0 && Previous_Vetical_Speed > 0 || directionToTheRight == false)) {
+                if (!directionToTheRight) {
                     g2d.drawImage(jumping.getImage(), (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
                 } else {
                     g2d.drawImage(jumping.getImage(), (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
