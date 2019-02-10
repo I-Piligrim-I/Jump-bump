@@ -7,14 +7,14 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Hitable {
-	//переданные данные
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	double x;
 	double y;
 	int height;
 	int width;
 	BufferedImage image;
 
-	static ArrayList<Hitable> hitableObjects = new ArrayList<Hitable>();
+	static ArrayList<Hitable> hitables = new ArrayList<Hitable>();
 	
 	
 	int hitTest(double RabX, double RabY, double RabR) {

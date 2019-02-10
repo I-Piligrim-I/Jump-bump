@@ -1,5 +1,5 @@
 package my.game;//Lundina Darya
-//18.05.18 (блоки)
+//18.05.18 (пїЅпїЅпїЅпїЅпїЅ)
 //Jump&Bump
 
 import javax.imageio.ImageIO;
@@ -16,8 +16,7 @@ public class Wall extends Hitable implements Drawable{
 		width = w;
 		height = h;
 		image = ImageIO.read(new File(Wall_Sample));
-		Drawable.drawable.add(this);
-		Hitable.hitableObjects.add(this);
+
 	}
 
 	public void draw(Graphics2D g2d) {
