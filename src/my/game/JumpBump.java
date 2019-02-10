@@ -3,23 +3,12 @@ package my.game;
 //import javafx.application.*;
 //import javafx.scene.media.AudioClip;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.event.*;
-import java.awt.font.TextAttribute;
-import java.awt.im.InputMethodHighlight;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Map;
-import java.util.Properties;
-import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioPermission;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 
 

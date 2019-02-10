@@ -20,7 +20,7 @@ public class Score implements Drawable {
 		for (Rabbit r : JumpBump.l.Object_Array_Rabbit) {
 			g2d.setColor(SCORE_COLOR);
 			g2d.setFont(new Font("PaladinPCRus Medium", 1, SCORE_FONT_SIZE));
-			g2d.drawString("rabbit" +" " + r.A_NAME +" - "+ Integer.toString(r.score), JumpBump.Width /2, j);
+			g2d.drawString("rabbit" +" " + r.name +" - "+ Integer.toString(r.score), JumpBump.Width /2, j);
 			i = i + 1;
 			j = j + 30;
 		}

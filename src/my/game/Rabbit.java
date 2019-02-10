@@ -1,11 +1,9 @@
 package my.game;
 //Lundina Darya
-//18.05.18 (сами кролики)
+//18.05.18 (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 //Jump&Bump
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +25,7 @@ public class Rabbit extends Hitable implements Drawable {
     int Right_Key;
     int Up_Key;
     int score;
-    String A_NAME;
+    String name;
     static final int RABBIT_SIZE = 70;
 
     BufferedImage imageDead;
@@ -48,12 +46,12 @@ public class Rabbit extends Hitable implements Drawable {
     static double X;
     static double Y;
 
-    boolean direction = true;
+    boolean directionToTheRight = true;
     boolean disabledFlag = false;
 
 //    int Blocked_Y;
 
-    Rabbit(int _left, int _up, int _right, int X, String RunImage, String JumpImage, String A_Name) throws IOException {
+    Rabbit(int _left, int _up, int _right, int X, String RunImage, String JumpImage, String rabbitName) throws IOException {
         Left_Key = _left;
         Up_Key = _up;
         Right_Key = _right;
@@ -71,7 +69,7 @@ public class Rabbit extends Hitable implements Drawable {
 
         imageDead = ImageIO.read(new File("dead-easter-bunny.png"));
 
-        A_NAME = A_Name;
+        name = rabbitName;
 
     }
 
@@ -90,16 +88,16 @@ public class Rabbit extends Hitable implements Drawable {
             if ((key == Left_Key) && (isBlockedFromRight == false)) {
                 vx = -VERTICAL_SEED_CONSTANT;
                 Previous_Vetical_Speed = vx;
-                direction = true;
+                directionToTheRight = true;
             }
             if (key == Left_Key)
-                direction = true;
+                directionToTheRight = true;
             if ((key == Right_Key) && (isBlockedFromLeft == false)) {
                 vx = VERTICAL_SEED_CONSTANT;
                 Previous_Vetical_Speed = vx;
             }
             if (key == Right_Key)
-                direction = false;
+                directionToTheRight = false;
             if ((key == Up_Key) && (isBlockedFormAbove == false) && (isBlockingDown == true)) {
                 vy = JUMP_SPEED_CONSTANT;
 
@@ -164,7 +162,7 @@ public class Rabbit extends Hitable implements Drawable {
 
         if ((isBlockingDown == true)) {
             vy = 0;
-           // y = Blocked_Y - RABBIT_SIZE;
+            // y = Blocked_Y - RABBIT_SIZE;
         } else {
             if (isBlockedFormAbove == true) {
                 vy = -vy;
@@ -191,7 +189,7 @@ public class Rabbit extends Hitable implements Drawable {
             if (disabledFlag) {
                 g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
             } else {
-                if (vx > 0 || (vx == 0 && Previous_Vetical_Speed > 0 || direction == false)) {
+                if (!directionToTheRight) { //(vx > 0 || (vx == 0 && Previous_Vetical_Speed > 0 || directionToTheRight == false)) {
                     g2d.drawImage(running.getImage(), (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
                 } else {
                     g2d.drawImage(running.getImage(), (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
@@ -202,7 +200,7 @@ public class Rabbit extends Hitable implements Drawable {
                 g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
             } else {
                 boolean revFlag = false;
-                if (vx > 0 || (vx == 0 && Previous_Vetical_Speed > 0 || direction == false)) {
+                if (!directionToTheRight) { //(vx > 0 || (vx == 0 && Previous_Vetical_Speed > 0 || directionToTheRight == false)) {
                     g2d.drawImage(jumping.getImage(), (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
                 } else {
                     g2d.drawImage(jumping.getImage(), (int) x + RABBIT_SIZE, (int) y, -RABBIT_SIZE, RABBIT_SIZE, null);
@@ -213,6 +211,6 @@ public class Rabbit extends Hitable implements Drawable {
         Font font = new Font("PaladinPCRus Medium", Font.BOLD, 15);
         g2d.setFont(font);
         g2d.setColor(new Color(212, 25, 69));
-        g2d.drawString(A_NAME, (int) x, (int) (y + RABBIT_SIZE));
+        g2d.drawString(name, (int) x, (int) (y + RABBIT_SIZE));
     }
 }
