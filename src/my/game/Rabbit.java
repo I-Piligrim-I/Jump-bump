@@ -52,6 +52,7 @@ public class Rabbit extends Hitable implements Drawable {
 
     Random spawnPointRandom = new Random();
     double spawnPoint;
+    double startX;
 
     static double X;
     static double Y;
@@ -70,6 +71,7 @@ public class Rabbit extends Hitable implements Drawable {
         Right_Key = _right;
         width = RABBIT_SIZE;
         height = RABBIT_SIZE;
+        startX = X;
         x = X;
 
 
@@ -172,7 +174,7 @@ public class Rabbit extends Hitable implements Drawable {
                                 diedRabbit.dieCounter--;
                             } else {
                                 diedRabbit.dieCounter = MAX_DIED_PERIOD;
-                                diedRabbit.respawn();
+                                diedRabbit.respawn(true);
                             }
                         }
                     }
@@ -217,10 +219,15 @@ public class Rabbit extends Hitable implements Drawable {
 
     }
 
-    public void respawn() {
+    public void respawn(boolean rand) {
         disable(false);
-        spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
-        x = spawnPoint;
+        if (!rand) {
+            x = startX;
+        } else {
+            spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
+            x = spawnPoint;
+        }
+
         //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
         y = 0;
     }

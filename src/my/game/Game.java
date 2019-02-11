@@ -42,11 +42,9 @@ public class Game {
 
     public void loadLevel(int levelNo) {
         Drawable.drawables.clear();
-        synchronized (Hitable.hitables) {
-            for (Hitable hitable : Hitable.hitables) {
-                if (hitable instanceof Rabbit) {
-                    ((Rabbit)hitable).respawn();
-                }
+        for (Hitable hitable : Hitable.hitables) {
+            if (hitable instanceof Rabbit) {
+                ((Rabbit) hitable).respawn(false);
             }
         }
         Hitable.hitables.clear();
