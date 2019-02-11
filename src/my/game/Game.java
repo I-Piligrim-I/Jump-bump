@@ -42,12 +42,12 @@ public class Game {
 
     public void loadLevel(int levelNo) {
         Drawable.drawables.clear();
-        Random spawnPointRandom = new Random();
-        for (Hitable hitable : Hitable.hitables) {
-            int spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - Rabbit.RABBIT_SIZE);
-            hitable.x = spawnPoint;
-            hitable.y = 0;
-            hitable.disable(false);
+        synchronized (Hitable.hitables) {
+            for (Hitable hitable : Hitable.hitables) {
+                if (hitable instanceof Rabbit) {
+                    ((Rabbit)hitable).respawn();
+                }
+            }
         }
         Hitable.hitables.clear();
 

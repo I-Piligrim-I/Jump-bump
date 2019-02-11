@@ -20,7 +20,7 @@ public class GameOverScreen implements Drawable {
         g2d.setColor(FRGRND_COLOR);
 
         g2d.setFont(new Font("PaladinPCRus Medium", 1, 40));
-        g2d.drawString("Кина не будет", 200, 100);
+        g2d.drawString("Game over!", 200, 100);
         g2d.drawString(text, 200, 200);
     }
 }

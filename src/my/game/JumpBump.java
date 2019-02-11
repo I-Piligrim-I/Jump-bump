@@ -64,10 +64,11 @@ public class JumpBump extends Hitable {
             frame.setVisible(true);
 
             Timer timer = new Timer(MAIN_TIMER_DELAY, arg0 -> {
-                for (NamedRabbit namedRabbit : namedRabbits) {
-                    namedRabbit.update();
+                synchronized (Hitable.hitables) {
+                    for (NamedRabbit namedRabbit : namedRabbits) {
+                        namedRabbit.update();
+                    }
                 }
-
                 frame.repaint();
             });
 

@@ -18,6 +18,10 @@ public class Rabbit extends Hitable implements Drawable {
     public static final int DEATH_TIMEOUT = 3000;
     public static final double VERTICAL_SEED_CONSTANT = 5;
     public static final double JUMP_SPEED_CONSTANT = -7.69;
+
+
+    private static final int MAX_DIED_PERIOD = 20;
+
     private final AffineTransformOp upFilter;
 
     protected double vx;
@@ -54,6 +58,8 @@ public class Rabbit extends Hitable implements Drawable {
 
     boolean directionToTheRight = true;
     boolean disabledFlag = false;
+    int dieCounter = MAX_DIED_PERIOD;
+
     private final AffineTransformOp downFilter;
 
 //    int Blocked_Y;
@@ -147,34 +153,26 @@ public class Rabbit extends Hitable implements Drawable {
         isBlockingDown = false;
         isBlockedFromRight = false;
         isBlockedFromLeft = false;
+
         for (int i = 0; i < Hitable.hitables.size(); i++) {
             if (Hitable.hitables.get(i) != this) {
                 if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 1) && (vy >= 0))) {
                     isBlockingDown = true;
+
                     // rabbit dies
                     Hitable hitable = Hitable.hitables.get(i);
-                    if (!hitable.isDisabled()) {
-                        {
-                            hitable.disable(true);
+                    if (hitable instanceof Rabbit) {
+                        Rabbit diedRabbit = (Rabbit) hitable;
+                        if (!diedRabbit.isDisabled()) {
+                            diedRabbit.disable(true);
 
-                            if (hitable instanceof Rabbit) {
-                                final int deadRabbitIdx = i;
-                                Timer deathDelayTimerSoSad = new Timer(DEATH_TIMEOUT, e -> {
-                                    if (hitable.isDisabled()) {
-                                        vx = 0;
-                                        hitable.disable(false);
-                                        spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
-                                        if (Hitable.hitables.size() > 0) {
-                                            Hitable.hitables.get(deadRabbitIdx).x = spawnPoint;
-                                            //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
-                                            Hitable.hitables.get(deadRabbitIdx).y = 0;
-                                        }
-                                    }
-                                });
-                                deathDelayTimerSoSad.setRepeats(false);
-                                deathDelayTimerSoSad.start();
-
-                                setScore(score + 1);
+                            this.setScore(score + 1);
+                        } else {
+                            if (diedRabbit.dieCounter > 0) {
+                                diedRabbit.dieCounter--;
+                            } else {
+                                diedRabbit.dieCounter = MAX_DIED_PERIOD;
+                                diedRabbit.respawn();
                             }
                         }
                     }
@@ -214,8 +212,17 @@ public class Rabbit extends Hitable implements Drawable {
         if ((isBlockedFromLeft == true) && (vx >= 0)) {
             vx = 0;
         }
+
         x = x + vx;
 
+    }
+
+    public void respawn() {
+        disable(false);
+        spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
+        x = spawnPoint;
+        //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
+        y = 0;
     }
 
     protected boolean isDisabled() {
@@ -255,6 +262,7 @@ public class Rabbit extends Hitable implements Drawable {
             } else {
                 boolean revFlag = false;
                 BufferedImage image = convertToBufferedImage(jumping.getImage());
+//                System.out.println("h: " + image.getHeight() + "  w=" + image.getHeight());
                 image = (vy > 0) ? downFilter.filter(image, null) : upFilter.filter(image, null);
                 if (!directionToTheRight) {
                     g2d.drawImage(image, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
