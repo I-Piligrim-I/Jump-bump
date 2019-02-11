@@ -6,9 +6,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
@@ -18,6 +17,10 @@ public class Rabbit extends Hitable implements Drawable {
     public static final int DEATH_TIMEOUT = 3000;
     public static final double VERTICAL_SEED_CONSTANT = 5;
     public static final double JUMP_SPEED_CONSTANT = -7.69;
+
+
+    private static final int MAX_DIED_PERIOD = 20;
+
     private final AffineTransformOp upFilter;
 
     protected double vx;
@@ -48,12 +51,17 @@ public class Rabbit extends Hitable implements Drawable {
 
     Random spawnPointRandom = new Random();
     double spawnPoint;
+    double startX;
 
     static double X;
     static double Y;
 
     boolean directionToTheRight = true;
     boolean disabledFlag = false;
+    int dieCounter = MAX_DIED_PERIOD;
+
+    private Map<Coords, BufferedImage> coordsBufferedImageMap = new HashMap<>();
+
     private final AffineTransformOp downFilter;
 
 //    int Blocked_Y;
@@ -64,6 +72,7 @@ public class Rabbit extends Hitable implements Drawable {
         Right_Key = _right;
         width = RABBIT_SIZE;
         height = RABBIT_SIZE;
+        startX = X;
         x = X;
 
 
@@ -140,6 +149,10 @@ public class Rabbit extends Hitable implements Drawable {
     @Override
     public void disable(boolean d) {
         disabledFlag = d;
+        if (d) {
+            BufferedImage image = convertToBufferedImage(jumping.getImage(), RABBIT_SIZE);
+            coordsBufferedImageMap = divideIntoBufferedImages(image);
+        }
     }
 
     public void update() {
@@ -147,34 +160,26 @@ public class Rabbit extends Hitable implements Drawable {
         isBlockingDown = false;
         isBlockedFromRight = false;
         isBlockedFromLeft = false;
+
         for (int i = 0; i < Hitable.hitables.size(); i++) {
             if (Hitable.hitables.get(i) != this) {
                 if (((Hitable.hitables.get(i).hitTest(x, y, RABBIT_SIZE) == 1) && (vy >= 0))) {
                     isBlockingDown = true;
+
                     // rabbit dies
                     Hitable hitable = Hitable.hitables.get(i);
-                    if (!hitable.isDisabled()) {
-                        {
-                            hitable.disable(true);
+                    if (hitable instanceof Rabbit) {
+                        Rabbit diedRabbit = (Rabbit) hitable;
+                        if (!diedRabbit.isDisabled()) {
+                            diedRabbit.disable(true);
 
-                            if (hitable instanceof Rabbit) {
-                                final int deadRabbitIdx = i;
-                                Timer deathDelayTimerSoSad = new Timer(DEATH_TIMEOUT, e -> {
-                                    if (hitable.isDisabled()) {
-                                        vx = 0;
-                                        hitable.disable(false);
-                                        spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
-                                        if (Hitable.hitables.size() > 0) {
-                                            Hitable.hitables.get(deadRabbitIdx).x = spawnPoint;
-                                            //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
-                                            Hitable.hitables.get(deadRabbitIdx).y = 0;
-                                        }
-                                    }
-                                });
-                                deathDelayTimerSoSad.setRepeats(false);
-                                deathDelayTimerSoSad.start();
-
-                                setScore(score + 1);
+                            this.setScore(score + 1);
+                        } else {
+                            if (diedRabbit.dieCounter > 0) {
+                                diedRabbit.dieCounter--;
+                            } else {
+                                diedRabbit.dieCounter = MAX_DIED_PERIOD;
+                                diedRabbit.respawn(true);
                             }
                         }
                     }
@@ -214,8 +219,22 @@ public class Rabbit extends Hitable implements Drawable {
         if ((isBlockedFromLeft == true) && (vx >= 0)) {
             vx = 0;
         }
+
         x = x + vx;
 
+    }
+
+    public void respawn(boolean rand) {
+        disable(false);
+        if (!rand) {
+            x = startX;
+        } else {
+            spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - RABBIT_SIZE);
+            x = spawnPoint;
+        }
+
+        //Blocked_Y = (int) hitable.y - RABBIT_SIZE;
+        y = 0;
     }
 
     protected boolean isDisabled() {
@@ -232,6 +251,44 @@ public class Rabbit extends Hitable implements Drawable {
         g.dispose();
         return newImage;
     }
+    public static BufferedImage convertToBufferedImage(Image image, int rabbitSize) {
+        BufferedImage newImage = new BufferedImage(
+                rabbitSize, rabbitSize,
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(image, 0, 0, rabbitSize, rabbitSize, null);
+        g.dispose();
+        return newImage;
+    }
+
+    static class Coords {
+        public int x, y;
+        public int directionAngle;
+
+        public Coords(int x, int y, int directionAngle) {
+            this.x = x;
+            this.y = y;
+            this.directionAngle = directionAngle;
+        }
+    }
+
+    public static Map<Coords, BufferedImage> divideIntoBufferedImages(BufferedImage image) {
+        Map<Coords, BufferedImage> chunks = new HashMap<>();
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int chunckCntX = 3;
+        int chunckCntY = 3;
+        for (int i = 0; i < chunckCntX; i++) {
+            for (int j = 0; j < chunckCntY; j++) {
+                Coords c1 = new Coords(0 + i * (width / chunckCntX), 0 + j * (height / chunckCntY), 10 + i * 170 / (chunckCntX - 1));
+                BufferedImage subimage = image.getSubimage(c1.x, c1.y, width / chunckCntX, height / chunckCntY);
+                chunks.put(c1, subimage);
+            }
+        }
+
+        return chunks;
+    }
 
 
     public void draw(Graphics2D g2d) {
@@ -240,7 +297,7 @@ public class Rabbit extends Hitable implements Drawable {
 
         if (isBlockingDown) {
             if (disabledFlag) {
-                g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
+                drawDeadRabbit(g2d);
             } else {
                 Image image = running.getImage();
                 if (!directionToTheRight) {
@@ -251,10 +308,11 @@ public class Rabbit extends Hitable implements Drawable {
             }
         } else {
             if (disabledFlag) {
-                g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
+                drawDeadRabbit(g2d);
             } else {
                 boolean revFlag = false;
                 BufferedImage image = convertToBufferedImage(jumping.getImage());
+//                System.out.println("h: " + image.getHeight() + "  w=" + image.getHeight());
                 image = (vy > 0) ? downFilter.filter(image, null) : upFilter.filter(image, null);
                 if (!directionToTheRight) {
                     g2d.drawImage(image, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
@@ -265,5 +323,26 @@ public class Rabbit extends Hitable implements Drawable {
         }
 
 
+    }
+
+    public void drawDeadRabbit(Graphics2D g2d) {
+
+        int delta = 10;
+        for (Map.Entry<Coords, BufferedImage> imageEntry : coordsBufferedImageMap.entrySet()) {
+            Coords coords = imageEntry.getKey();
+            g2d.drawImage(imageEntry.getValue(), (int)x + coords.x, (int)y + coords.y, null);
+            double dxx;
+            double dyy;
+            if (coords.directionAngle > 90) {
+                int angl = 180 - coords.directionAngle;
+                dxx = delta * Math.cos(Math.toRadians(angl));
+                dyy = -delta * Math.sin(Math.toRadians(angl));
+            } else {
+                dxx = -delta * Math.cos(Math.toRadians(coords.directionAngle));
+                dyy = -delta * Math.sin(Math.toRadians(coords.directionAngle));
+            }
+            coords.x += (int) dxx;
+            coords.y += (int) dyy;
+        }
     }
 }

@@ -1,7 +1,6 @@
 package my.game;
 
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,12 +41,10 @@ public class Game {
 
     public void loadLevel(int levelNo) {
         Drawable.drawables.clear();
-        Random spawnPointRandom = new Random();
         for (Hitable hitable : Hitable.hitables) {
-            int spawnPoint = spawnPointRandom.nextInt(JumpBump.WINDOW_WIDTH - Rabbit.RABBIT_SIZE);
-            hitable.x = spawnPoint;
-            hitable.y = 0;
-            hitable.disable(false);
+            if (hitable instanceof Rabbit) {
+                ((Rabbit) hitable).respawn(false);
+            }
         }
         Hitable.hitables.clear();
 

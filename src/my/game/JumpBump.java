@@ -67,7 +67,6 @@ public class JumpBump extends Hitable {
                 for (NamedRabbit namedRabbit : namedRabbits) {
                     namedRabbit.update();
                 }
-
                 frame.repaint();
             });
 
