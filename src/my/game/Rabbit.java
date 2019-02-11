@@ -6,9 +6,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
@@ -60,6 +59,8 @@ public class Rabbit extends Hitable implements Drawable {
     boolean directionToTheRight = true;
     boolean disabledFlag = false;
     int dieCounter = MAX_DIED_PERIOD;
+
+    private Map<Coords, BufferedImage> coordsBufferedImageMap = new HashMap<>();
 
     private final AffineTransformOp downFilter;
 
@@ -148,6 +149,10 @@ public class Rabbit extends Hitable implements Drawable {
     @Override
     public void disable(boolean d) {
         disabledFlag = d;
+        if (d) {
+            BufferedImage image = convertToBufferedImage(jumping.getImage(), RABBIT_SIZE);
+            coordsBufferedImageMap = divideIntoBufferedImages(image);
+        }
     }
 
     public void update() {
@@ -246,6 +251,44 @@ public class Rabbit extends Hitable implements Drawable {
         g.dispose();
         return newImage;
     }
+    public static BufferedImage convertToBufferedImage(Image image, int rabbitSize) {
+        BufferedImage newImage = new BufferedImage(
+                rabbitSize, rabbitSize,
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(image, 0, 0, rabbitSize, rabbitSize, null);
+        g.dispose();
+        return newImage;
+    }
+
+    static class Coords {
+        public int x, y;
+        public int directionAngle;
+
+        public Coords(int x, int y, int directionAngle) {
+            this.x = x;
+            this.y = y;
+            this.directionAngle = directionAngle;
+        }
+    }
+
+    public static Map<Coords, BufferedImage> divideIntoBufferedImages(BufferedImage image) {
+        Map<Coords, BufferedImage> chunks = new HashMap<>();
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int chunckCntX = 3;
+        int chunckCntY = 3;
+        for (int i = 0; i < chunckCntX; i++) {
+            for (int j = 0; j < chunckCntY; j++) {
+                Coords c1 = new Coords(0 + i * (width / chunckCntX), 0 + j * (height / chunckCntY), 10 + i * 170 / (chunckCntX - 1));
+                BufferedImage subimage = image.getSubimage(c1.x, c1.y, width / chunckCntX, height / chunckCntY);
+                chunks.put(c1, subimage);
+            }
+        }
+
+        return chunks;
+    }
 
 
     public void draw(Graphics2D g2d) {
@@ -254,7 +297,7 @@ public class Rabbit extends Hitable implements Drawable {
 
         if (isBlockingDown) {
             if (disabledFlag) {
-                g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
+                drawDeadRabbit(g2d);
             } else {
                 Image image = running.getImage();
                 if (!directionToTheRight) {
@@ -265,7 +308,7 @@ public class Rabbit extends Hitable implements Drawable {
             }
         } else {
             if (disabledFlag) {
-                g2d.drawImage(imageDead, (int) x, (int) y, RABBIT_SIZE, RABBIT_SIZE, null);
+                drawDeadRabbit(g2d);
             } else {
                 boolean revFlag = false;
                 BufferedImage image = convertToBufferedImage(jumping.getImage());
@@ -280,5 +323,26 @@ public class Rabbit extends Hitable implements Drawable {
         }
 
 
+    }
+
+    public void drawDeadRabbit(Graphics2D g2d) {
+
+        int delta = 10;
+        for (Map.Entry<Coords, BufferedImage> imageEntry : coordsBufferedImageMap.entrySet()) {
+            Coords coords = imageEntry.getKey();
+            g2d.drawImage(imageEntry.getValue(), (int)x + coords.x, (int)y + coords.y, null);
+            double dxx;
+            double dyy;
+            if (coords.directionAngle > 90) {
+                int angl = 180 - coords.directionAngle;
+                dxx = delta * Math.cos(Math.toRadians(angl));
+                dyy = -delta * Math.sin(Math.toRadians(angl));
+            } else {
+                dxx = -delta * Math.cos(Math.toRadians(coords.directionAngle));
+                dyy = -delta * Math.sin(Math.toRadians(coords.directionAngle));
+            }
+            coords.x += (int) dxx;
+            coords.y += (int) dyy;
+        }
     }
 }
